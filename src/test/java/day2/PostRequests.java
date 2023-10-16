@@ -7,8 +7,12 @@ package day2;
 */
 import netscape.javascript.JSObject;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.testng.annotations.Test;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.HashMap;
 
 import static io.restassured.RestAssured.given;
@@ -69,7 +73,7 @@ public class PostRequests {
     }
 
     //3-Post Request Using POJO
-    @Test(priority = 1)
+    //@Test(priority = 1)
     void testPostUsingPOJO(){
         Pojo_Post_Request data=new Pojo_Post_Request();
         data.setName("Selman");
@@ -91,6 +95,32 @@ public class PostRequests {
                 .body("phone",equalTo("5648515151"))
                 .body("courses[0]",equalTo("a"))
                 .body("courses[1]",equalTo("b"))
+                .header("Content-Type","application/json; charset=utf-8")
+                .log().all();
+    }
+
+    //4-Using external Json File
+    @Test(priority = 1)
+    void testPostUsingJsonFile() throws FileNotFoundException {
+        File f=new File(".\\body.json");
+        FileReader fr=new FileReader(f);
+        JSONTokener jt=new JSONTokener(fr);
+        JSONObject data=new JSONObject(jt);
+
+
+
+        given()
+                .contentType("application/json")
+                .body(data.toString())
+                .when()
+                .post("http://localhost:3000/students")
+                .then()
+                .statusCode(201)
+                .body("name",equalTo("Gökçe"))
+                .body("location",equalTo("Gaziantep"))
+                .body("phone",equalTo("65465456"))
+                .body("courses[0]",equalTo("C"))
+                .body("courses[1]",equalTo("C++"))
                 .header("Content-Type","application/json; charset=utf-8")
                 .log().all();
     }
